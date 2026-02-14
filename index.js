@@ -1,8 +1,9 @@
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const fs = require('fs');
 const tiemposAFK = '/data/tiemposAFK.json';
 const tiemposTemp = new Map()
 const CANAL_OBSERVADO= "1468692350472687746"
+const ID_PROPIETARIO= "716413074973917234"
 
 function cargarDatos()
 {
@@ -23,7 +24,7 @@ function guardarDatos(datos)
 
 
 const client = new Client(
-    { intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates] });
+    { intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.DirectMessages], partials: [Partials.Channel] });
 
 // Cuando la "llamada de teléfono" se establece con éxito, salta este evento
 client.once('ready', () => {
@@ -66,7 +67,22 @@ client.on('voiceStateUpdate', (oldState, newState) => {
     }
 })
 
+client.on('messageCreate', async (message) => {
+    if (message.author.id === client.user.id)
+    {
+        return;
+    }
+    if (message.author.id === ID_PROPIETARIO)
+    {
+        if (message.content.toString() === "!AFK")
+        {
+            await message.reply({content: "Reporte AFK", files: [tiemposAFK]});
+        }
+    }
+})
+
 
 // ¡ESTA ES LA LÍNEA MÁGICA!
 // Inicia el WebSocket, envía el token, mantiene el Heartbeat y te pone "En línea"
 client.login(process.env.DISCORD_TOKEN);
+

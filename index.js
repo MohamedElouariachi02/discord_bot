@@ -102,6 +102,13 @@ client.on('messageCreate', async (message) => {
                 }
             })
         }
+
+        //Borra todos los mensajes de un canal
+        if (message.content.toString() === "!limpiarTodo")
+        {
+            const mensajes = await message.channel.messages.fetch( );
+            mensajes.forEach(mensaje=> { mensaje.delete(); })
+        }
         return;
     }
 

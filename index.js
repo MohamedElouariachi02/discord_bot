@@ -1,7 +1,7 @@
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const fs = require('fs');
 require('dotenv').config();
-const tiemposAFK = '/data/tiemposAFK.json';
+const tiemposAFK = 'data/tiemposAFK.json';
 const tiemposTemp = new Map()
 const CANAL_OBSERVADO= "1468692350472687746"
 const ID_PROPIETARIO= "716413074973917234"
@@ -32,7 +32,7 @@ const client = new Client(
 client.once('ready', () => {
     console.log(`¡Conectado exitosamente como ${client.user.tag}!`);
 
-    // Opcional: Puedes cambiar el estado a "Jugando a..." o "Viendo..."
+    // Establecimiento del estado del BOT
     client.user.setPresence({
         activities: [{ name: 'Deslizando por Tinder 🔥', type: 0 }],
         status: 'online',
@@ -70,16 +70,28 @@ client.on('voiceStateUpdate', (oldState, newState) => {
 })
 
 client.on('messageCreate', async (message) => {
+    // Pasa si es su propio mensaje
     if (message.author.id === client.user.id)
     {
         return;
     }
+
+    // Comandos generales
+    if (message.content.toString() === "!listaAFK")
+    {
+        await message.reply(await verListaAFK(message))
+    }
+
+    // Comandos de administrador
     if (message.author.id === ID_PROPIETARIO)
     {
+        // Envia el fichero JSON de los tiempos AFK
         if (message.content.toString() === "!AFK")
         {
             await message.reply({content: "Reporte AFK", files: [tiemposAFK]});
         }
+
+        // Borra todos sus mensajes
         if (message.content.toString() === "!limpiar")
         {
             const mensajes = await message.channel.messages.fetch( );
@@ -90,9 +102,32 @@ client.on('messageCreate', async (message) => {
                 }
             })
         }
+        return;
     }
+
+
 })
 
+async function verListaAFK(message)
+{
+    const datos = cargarDatos();
+    console.log(datos);
+    var final = "------------------------------------------------------------\n";
+    for (const [id, time] of Object.entries(datos)) {
+        var user = null
+        message.guild.members.cache.forEach(member => {
+            console.log(member.id)
+            console.log(id)
+            if (member.id === id)
+            {
+                console.log(member)
+                user = member.user.username
+            }
+        })
+        final += "-" + user + ": " + time / 6000 + " minutos" +"\n"
+    }
+    return final + "------------------------------------------------------------"
+}
 
 // ¡ESTA ES LA LÍNEA MÁGICA!
 // Inicia el WebSocket, envía el token, mantiene el Heartbeat y te pone "En línea"

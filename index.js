@@ -131,7 +131,7 @@ async function verListaAFK(message)
                 user = member.user.username
             }
         })
-        final += "-" + user + ": " + datos[id] / 6000 + " minutos" +"\n"
+        final += "- " + user + ": " + datos[id] / 60000 + " minutos" +"\n"
     }
     return final + "------------------------------------------------------------"
 }

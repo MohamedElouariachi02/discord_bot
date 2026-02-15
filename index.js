@@ -1,5 +1,6 @@
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const fs = require('fs');
+require('dotenv').config();
 const tiemposAFK = '/data/tiemposAFK.json';
 const tiemposTemp = new Map()
 const CANAL_OBSERVADO= "1468692350472687746"
@@ -24,7 +25,8 @@ function guardarDatos(datos)
 
 
 const client = new Client(
-    { intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.DirectMessages], partials: [Partials.Channel] });
+    { intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.DirectMessages],
+        partials: [Partials.Channel, Partials.Message] });
 
 // Cuando la "llamada de teléfono" se establece con éxito, salta este evento
 client.once('ready', () => {
@@ -77,6 +79,16 @@ client.on('messageCreate', async (message) => {
         if (message.content.toString() === "!AFK")
         {
             await message.reply({content: "Reporte AFK", files: [tiemposAFK]});
+        }
+        if (message.content.toString() === "!limpiar")
+        {
+            const mensajes = await message.channel.messages.fetch( );
+            mensajes.forEach(mensaje=> {
+                if (mensaje.author.bot)
+                {
+                    mensaje.delete();
+                }
+            })
         }
     }
 })

@@ -6,7 +6,8 @@ const tiemposTemp = new Map()
 const CANAL_OBSERVADO= "1468692350472687746"
 const ID_PROPIETARIO= "716413074973917234"
 const comandosInfo = {"!listaAFK": "Te enseño toda la lista de los miembros que han estado AFK",
-"!hola": "Te saludo"}
+"!hola": "Te saludo",
+"!rule": "Te doy un color aleatorio"}
 
 function cargarDatos()
 {
@@ -97,7 +98,7 @@ client.on('messageCreate', async (message) => {
     if (message.content.toString() === "!rule")
     {
         const colores = ["rojo", "negro"];
-        await message.reply(colores[Math.floor(Math.random() * (1 - 0 + 1)) + 0]);
+        await message.reply(colores[Math.floor(Math.random() * (1 + 1))]);
     }
 
     // Comandos de administrador

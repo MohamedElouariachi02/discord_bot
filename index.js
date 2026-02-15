@@ -5,6 +5,8 @@ const tiemposAFK = '/data/tiemposAFK.json';
 const tiemposTemp = new Map()
 const CANAL_OBSERVADO= "1468692350472687746"
 const ID_PROPIETARIO= "716413074973917234"
+const comandosInfo = {"!listaAFK": "Te enseño toda la lista de los miembros que han estado AFK",
+"!hola": "Te saludo"}
 
 function cargarDatos()
 {
@@ -82,6 +84,16 @@ client.on('messageCreate', async (message) => {
         await message.reply(await verListaAFK(message))
     }
 
+    if (message.content.toString() === "!comandos")
+    {
+        await message.reply(await verComandos());
+    }
+
+    if (message.content.toString() === "!hola")
+    {
+        await message.reply("Holiii amigos mios");
+    }
+
     // Comandos de administrador
     if (message.author.id === ID_PROPIETARIO)
     {
@@ -109,11 +121,12 @@ client.on('messageCreate', async (message) => {
             const mensajes = await message.channel.messages.fetch( );
             mensajes.forEach(mensaje=> { mensaje.delete(); })
         }
-        return;
     }
 
 
 })
+
+
 
 async function verListaAFK(message)
 {
@@ -134,6 +147,16 @@ async function verListaAFK(message)
         final += "- " + user + ": " + datos[id] / 60000 + " minutos" +"\n"
     }
     return final + "------------------------------------------------------------"
+}
+
+async function verComandos()
+{
+    var final = ""
+    for (const [comando, info] of Object.entries(comandosInfo)) {
+        final += "* " + comando + " : " + info + "\n";
+        console.log(final);
+    }
+    return final;
 }
 
 // ¡ESTA ES LA LÍNEA MÁGICA!

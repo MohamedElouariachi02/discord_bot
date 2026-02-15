@@ -94,6 +94,12 @@ client.on('messageCreate', async (message) => {
         await message.reply("Holiii amigos mios");
     }
 
+    if (message.content.toString() === "!rule")
+    {
+        const colores = ["rojo", "negro"];
+        await message.reply(colores[Math.floor(Math.random() * (1 - 0 + 1)) + 0]);
+    }
+
     // Comandos de administrador
     if (message.author.id === ID_PROPIETARIO)
     {
@@ -159,7 +165,5 @@ async function verComandos()
     return final;
 }
 
-// ¡ESTA ES LA LÍNEA MÁGICA!
-// Inicia el WebSocket, envía el token, mantiene el Heartbeat y te pone "En línea"
 client.login(process.env.DISCORD_TOKEN);
 

@@ -1,7 +1,7 @@
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const fs = require('fs');
 require('dotenv').config();
-const tiemposAFK = '/data/tiemposAFK.json';
+const tiemposAFK = './tiemposAFK.json';
 const tiemposTemp = new Map()
 const CANAL_OBSERVADO= "1468692350472687746"
 const ID_PROPIETARIO= "716413074973917234"
@@ -143,19 +143,12 @@ client.on('messageCreate', async (message) => {
 async function verListaAFK(message)
 {
     const datos = cargarDatos();
-    console.log(datos);
     var final = "------------------------------------------------------------\n";
+
     for (const id in datos) {
-        var user = null
-        message.guild.members.cache.forEach(member => {
-            console.log(member.id)
-            console.log(id)
-            if (member.id === id)
-            {
-                console.log(member)
-                user = member.user.username
-            }
-        })
+
+        const userData = await client.users.fetch(id)
+        const user = userData.username
         final += "- " + user + ": " + datos[id] / 60000 + " minutos" +"\n"
     }
     return final + "------------------------------------------------------------"

@@ -80,21 +80,26 @@ client.on('messageCreate', async (message) => {
     }
 
     // Comandos generales
+
+    // Lista de los tiempos de los usuarios en el canal AFK
     if (message.content.toString() === "!listaAFK")
     {
         await message.reply(await verListaAFK(message))
     }
 
+    // Muestra la lista de comandos del BOT
     if (message.content.toString() === "!comandos")
     {
         await message.reply(await verComandos());
     }
 
+    // Saluda a un miembro
     if (message.content.toString() === "!hola")
     {
         await message.reply("Holiii amigos mios");
     }
 
+    // Gira la ruleta y muestra un color aleatorio
     if (message.content.toString() === "!rule")
     {
         const colores = ["rojo", "negro"];

@@ -143,13 +143,17 @@ client.on('messageCreate', async (message) => {
 async function verListaAFK(message)
 {
     const datos = cargarDatos();
-    var final = "------------------------------------------------------------\n";
+    var final = "------------------------***TOP AFK***------------------------\n";
+    const mapaUser = Object.entries(datos)
+        .map(([id, time]) => {return {id: id, time: time}})
+    .sort((a, b) => b.time - a.time);
+    console.log(mapaUser)
 
-    for (const id in datos) {
-
-        const userData = await client.users.fetch(id)
+    for (const userTime of mapaUser) {
+        console.log(`${userTime.id} - ${userTime.time}`);
+        const userData = await client.users.fetch(userTime.id)
         const user = userData.username
-        final += "- " + user + ": " + datos[id] / 60000 + " minutos" +"\n"
+        final += `- ${user}: ${(userTime.time / 60000).toFixed(2)} minutos\n`
     }
     return final + "------------------------------------------------------------"
 }

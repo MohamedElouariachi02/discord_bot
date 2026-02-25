@@ -1,13 +1,16 @@
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const fs = require('fs');
+const lolUtility = require('./lolAPITest')
 require('dotenv').config();
+
 const tiemposAFK = '/data/tiemposAFK.json';
 const tiemposTemp = new Map()
 const CANAL_OBSERVADO= "1468692350472687746"
 const ID_PROPIETARIO= "716413074973917234"
 const comandosInfo = {"!listaAFK": "Te enseño toda la lista de los miembros que han estado AFK",
 "!hola": "Te saludo",
-"!rule": "Te doy un color aleatorio"}
+"!rule": "Te doy un color aleatorio",
+"!lolLastMatch username#tag": "El bot te hace un resumen de tu ultima partida y te da consejos para mejorar"}
 
 function cargarDatos()
 {
@@ -106,6 +109,17 @@ client.on('messageCreate', async (message) => {
         await message.reply(colores[Math.floor(Math.random() * (1 + 1))]);
     }
 
+    if (message.content.toString().includes("!lolLastMatch"))
+    {
+        const [comando, user] = message.content.toString().split(" ");
+        const [username, tag] = user.split("#");
+        console.log(`${username} - ${tag}`);
+        const vodReview = await lolUtility.todos(username, tag)
+        await message.reply(vodReview.toString().substring(0, vodReview.toString().length / 2))
+        await message.reply(vodReview.toString().substring(vodReview.toString().length / 2))
+    }
+
+
     // Comandos de administrador
     if (message.author.id === ID_PROPIETARIO)
     {
@@ -150,6 +164,8 @@ async function verListaAFK(message)
         }
         return `- ${user}: ${(minutos).toFixed(0)} minutos\n`
     }
+
+
     const datos = cargarDatos();
     var final = "------------------------***TOP AFK***------------------------\n";
     const mapaUser = Object.entries(datos)
@@ -158,7 +174,6 @@ async function verListaAFK(message)
     console.log(mapaUser)
 
     for (const userTime of mapaUser) {
-        console.log(`${userTime.id} - ${userTime.time}`);
         const userData = await client.users.fetch(userTime.id)
         const user = userData.username
         final += textoTiempo(user, userTime.time / 60000)

@@ -93,44 +93,41 @@ async function lastMatch(puuid)
 async function llamadaIA(datosGame)
 {
     const datos = {
-        // 1. Añadimos esta configuración para hacerlo estricto y menos "creativo"
-        generationConfig: {
-            temperature: 0.2
+        system_instruction: {
+            parts: [
+                {
+                    text: "Actúas como el Head Coach y Analista de Datos de un equipo profesional de League of Legends (nivel Challenger). Tu personalidad es sarcástica, dura y tienes un tono burlesco (como un coach exigente que se ríe un poco de las desgracias de sus alumnos). Quieres que el jugador mejore, pero no le vas a tener piedad si sus números son un desastre.\n\n" +
+                        "Tus reglas inquebrantables son:\n" +
+                        "1. BASADO EN DATOS: Nunca inventes, asumas o alucines estadísticas que no estén presentes en el JSON proporcionado.\n" +
+                        "2. CONTEXTO DE ROL: Evalúa los números según el campeón y el rol. Por ejemplo, un CS bajo es normal en un Support, pero inaceptable en un ADC. Un KDA alto no importa si la participación en asesinatos o el daño a objetivos es nulo.\n" +
+                        "3. ACCIONABLE Y BURLÓN: Tus consejos deben ser mecánicos o estratégicos de alto nivel (ej. 'aplica slow push en la 3ra oleada', 'wardea el píxel brush antes de rotar'), pero acompáñalos de comentarios sarcásticos sobre su falta de habilidad actual. Está prohibido dar consejos vagos o clichés.\n" +
+                        "4. FORMATO ESTRICTO: Siempre debes responder utilizando la estructura exacta que el usuario te solicite, sin añadir introducciones largas ni conclusiones innecesarias."
+                }
+            ]
         },
         contents: [
             {
-                role: "user",
                 parts: [
                     {
-                        text: "Actúas como el Head Coach y Analista de Datos de un equipo profesional de League of Legends (nivel Challenger). Tu personalidad es sarcástica, dura y tienes un tono burlesco.\n\n" +
-                            "REGLAS INQUEBRANTABLES:\n" +
-                            "1. BASADO EN DATOS: No inventes estadísticas.\n" +
-                            "2. CONTEXTO DE ROL: Evalúa según el campeón y posición.\n" +
-                            "3. ACCIONABLE Y BURLÓN: Consejos técnicos pero con sarcasmo.\n" +
-                            "4. IDIOMA: Responde ÚNICAMENTE en ESPAÑOL.\n" +
-                            "5. PROHIBIDO REPETIR DATOS: NO devuelvas el código JSON.\n\n" +
-                            "Analiza los datos de mi partida y devuelve tu evaluación usando EXACTAMENTE Y ÚNICAMENTE esta plantilla (rellena los datos donde corresponda, sin añadir texto antes ni después):\n\n" +
+                        text: "Analiza los siguientes datos estadísticos de mi última partida de League of Legends. Ten muy en cuenta el campeón que utilicé, mi posición (rol) y la duración de la partida para evaluar mi rendimiento.\n\n" +
+                            "Entrégame tu evaluación utilizando EXACTAMENTE la siguiente estructura:\n\n" +
                             "**1. Resumen de Desempeño (El Roasting)**\n" +
-                            "[Tu evaluación contundente y sarcástica aquí]\n\n" +
+                            "Una o dos oraciones contundentes, sarcásticas y en tono de burla evaluando mi impacto general en la partida. Si jugué mal, ríete de mí sin piedad; si jugué bien, sé condescendiente o sorpréndete irónicamente de que no haya arruinado la partida.\n\n" +
                             "**2. Fortalezas (Lo que, milagrosamente, hiciste bien)**\n" +
-                            "* [Fortaleza 1 con datos]\n" +
-                            "* [Fortaleza 2 con datos]\n\n" +
+                            "Identifica 2 áreas donde destaqué. **Obligatorio:** Menciona los números exactos del JSON para respaldar tu punto (ej. 'Al menos tu daño por minuto fue de X' o 'Sorprendentemente lograste un CS de X al minuto 10').\n\n" +
                             "**3. Debilidades (Por qué le pesas a tu equipo)**\n" +
-                            "* [Debilidad 1 con datos de lo lamentable que fue]\n" +
-                            "* [Debilidad 2 con datos]\n\n" +
+                            "Identifica 2 áreas donde estuve por debajo del nivel esperado para mi rol. **Obligatorio:** Menciona los datos exactos que demuestran este déficit y haz énfasis en lo lamentables que son esos números.\n\n" +
                             "**4. Plan de Acción (Para que dejes de dar pena)**\n" +
-                            "* [Consejo técnico 1]\n" +
-                            "* [Consejo técnico 2]\n" +
-                            "* [Consejo técnico 3]\n\n" +
+                            "Proporciona 3 consejos prácticos y mecánicamente específicos para corregir las debilidades mencionadas. Sé directo y técnico.\n\n" +
                             "--- DATOS DE LA PARTIDA ---\n" +
                             JSON.stringify(datosGame, null, 2)
                     }
                 ]
             }
         ]
-    };
+    }
 
-    const data = await axios.post("https://generativelanguage.googleapis.com/v1beta/models/gemma-3-1b-it:generateContent", datos,
+    const data = await axios.post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent", datos,
         {headers: {"x-goog-api-key": process.env.GOOGLE_TOKEN, "Content-Type": "application/json"}})
 
     return data.data.candidates[0].content.parts[0].text

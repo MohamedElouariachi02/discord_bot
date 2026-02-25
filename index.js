@@ -117,6 +117,7 @@ client.on('messageCreate', async (message) => {
         const vodReview = await lolUtility.todos(username, tag)
         await message.reply(vodReview.toString().substring(0, vodReview.toString().length / 2))
         await message.reply(vodReview.toString().substring(vodReview.toString().length / 2))
+        await message.reply(`Esta es mi trayectoria: https://op.gg/es/lol/summoners/euw/${username}-${tag}`)
     }
 
 

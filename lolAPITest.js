@@ -142,11 +142,6 @@ async function todos(username, tag)
 
 }
 
-todos("Magickio", "Magic").then(algo =>
-{
-    console.log(algo)
-})
-
 module.exports = {
     todos
 }

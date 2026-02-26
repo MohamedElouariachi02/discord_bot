@@ -111,9 +111,9 @@ client.on('messageCreate', async (message) => {
 
     if (message.content.toString().includes("!lolLastMatch"))
     {
-        const [comando, user] = message.content.toString().split(" ");
+        console.log("hola")
+        const user = message.content.toString().substring("!lolLastMatch".length + 1);
         const [username, tag] = user.split("#");
-        console.log(`${username} - ${tag}`);
         const vodReview = await lolUtility.todos(username, tag)
         await message.reply(vodReview.toString().substring(0, vodReview.toString().length / 2))
         await message.reply(vodReview.toString().substring(vodReview.toString().length / 2))

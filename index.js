@@ -4,29 +4,32 @@ const lolUtility = require('./lolAPITest')
 require('dotenv').config();
 
 const tiemposAFK = '/data/tiemposAFK.json';
+const ruterEnfado = '/data/ruterEnfados.json';
 const tiemposTemp = new Map()
 const CANAL_OBSERVADO= "1468692350472687746"
 const ID_PROPIETARIO= "716413074973917234"
 const comandosInfo = {"!listaAFK": "Te enseño toda la lista de los miembros que han estado AFK",
 "!hola": "Te saludo",
 "!rule": "Te doy un color aleatorio",
-"!lolLastMatch username#tag": "El bot te hace un resumen de tu ultima partida y te da consejos para mejorar"}
+"!lolLastMatch username#tag": "El bot te hace un resumen de tu ultima partida y te da consejos para mejorar",
+"!ruterTilt": "Suma 1 enfado a la lista de enfados de ByRuter",
+"!verRuterTilt" : "Muestra cuantos tilts lleva nuestro amigo ByRuter"}
 
-function cargarDatos()
+function cargarDatos(archivo)
 {
-    if (!fs.existsSync(tiemposAFK))
+    if (!fs.existsSync(archivo))
     {
-        fs.writeFileSync(tiemposAFK, JSON.stringify({}));
+        fs.writeFileSync(archivo, JSON.stringify({}));
         return {};
     }
 
-    const datosRaw = fs.readFileSync(tiemposAFK, 'utf-8');
+    const datosRaw = fs.readFileSync(archivo, 'utf-8');
     return JSON.parse(datosRaw);
 }
 
-function guardarDatos(datos)
+function guardarDatos(archivo, datos)
 {
-    fs.writeFileSync(tiemposAFK, JSON.stringify(datos, null, 2));
+    fs.writeFileSync(archivo, JSON.stringify(datos, null, 2));
 }
 
 
@@ -56,14 +59,14 @@ client.on('voiceStateUpdate', (oldState, newState) => {
         if (entrada)
         {
             var tiempoTotal = Date.now() - entrada;
-            let baseDatos = cargarDatos();
+            let baseDatos = cargarDatos(tiemposAFK);
             if (!baseDatos[oldState.id])
             {
                 baseDatos[oldState.id] = 0;
             }
             baseDatos[oldState.id] += tiempoTotal;
 
-            guardarDatos(baseDatos)
+            guardarDatos(tiemposAFK, baseDatos)
 
             tiemposTemp.delete(oldState.id);
         }
@@ -126,6 +129,23 @@ client.on('messageCreate', async (message) => {
         await message.reply(`Esta es mi trayectoria: https://op.gg/es/lol/summoners/euw/${username}-${tag}`)
     }
 
+    if (message.content.toString() === "!ruterTilt")
+    {
+        await incrementRuterEnfado();
+
+    }
+
+    if (message.content.toString() === "!verRuterTilt")
+    {
+        const enfados = await verRuterEnfado();
+        if (enfados === undefined)
+        {
+            await message.reply(`ByRuter lleva 0 enfados`);
+            return
+        }
+        await message.reply(`ByRuter lleva ${enfados} enfados`);
+    }
+
 
     // Comandos de administrador
     if (message.author.id === ID_PROPIETARIO)
@@ -173,7 +193,7 @@ async function verListaAFK(message)
     }
 
 
-    const datos = cargarDatos();
+    const datos = cargarDatos(tiemposAFK);
     var final = "------------------------***TOP AFK***------------------------\n";
     const mapaUser = Object.entries(datos)
         .map(([id, time]) => {return {id: id, time: time}})
@@ -186,6 +206,29 @@ async function verListaAFK(message)
         final += textoTiempo(user, userTime.time / 60000)
     }
     return final + "------------------------------------------------------------"
+}
+
+async function incrementRuterEnfado()
+{
+    const baseDatos = cargarDatos(ruterEnfado);
+    if (!baseDatos["Enfados"])
+    {
+        baseDatos["Enfados"] = 0;
+    }
+    baseDatos["Enfados"] += 1
+    guardarDatos(ruterEnfado, baseDatos)
+}
+
+async function verRuterEnfado()
+{
+    const baseDatos = cargarDatos(ruterEnfado);
+    if (!baseDatos["Enfados"])
+    {
+        console.log("No hay enfados aun")
+        return
+    }
+    console.log(`Enfados Totales: ${baseDatos["Enfados"]}`);
+    return baseDatos["Enfados"]
 }
 
 async function verComandos()

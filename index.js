@@ -206,10 +206,10 @@ async function mostrarEnfadosRuter(message)
     const enfados = await verRuterEnfado();
     if (enfados === undefined)
     {
-        await message.reply(`ByRuter lleva 0 enfados`);
+        await message.reply(`ByRuter lleva 0 enfados :rage:`);
         return
     }
-    await message.reply(`ByRuter lleva ${enfados} enfados`);
+    await message.reply(`ByRuter lleva ${enfados} enfados :rage:`);
 }
 
 async function verListaAFK(message)

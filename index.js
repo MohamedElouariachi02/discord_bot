@@ -130,7 +130,7 @@ client.on('messageCreate', async (message) => {
 
     if (message.content.toString() === "!verRuterTilt")
     {
-        await mostrarEnfadosRuter();
+        await mostrarEnfadosRuter(message);
     }
 
 
@@ -143,6 +143,10 @@ client.on('messageCreate', async (message) => {
         if (message.content.toString() === "!AFK")
         {
             await message.reply({content: "Reporte AFK", files: [tiemposAFK]});
+        }
+        if (message.content.toString() === "!RuterJSON")
+        {
+            await message.reply({content: "JSON de enfados Ruter", files: [ruterEnfado]});
         }
 
         // Borra todos sus mensajes
@@ -197,7 +201,7 @@ async function mostrarResumenUltimaPartidaLOL(message)
     await message.reply(`Esta es mi trayectoria: https://op.gg/es/lol/summoners/euw/${username}-${tag}`)
 }
 
-async function mostrarEnfadosRuter()
+async function mostrarEnfadosRuter(message)
 {
     const enfados = await verRuterEnfado();
     if (enfados === undefined)

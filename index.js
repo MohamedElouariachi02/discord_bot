@@ -82,6 +82,8 @@ client.on('voiceStateUpdate', (oldState, newState) => {
     }
 })
 
+
+
 client.on('messageCreate', async (message) => {
     // Pasa si es su propio mensaje
     if (message.author.id === client.user.id)
@@ -112,8 +114,7 @@ client.on('messageCreate', async (message) => {
     // Gira la ruleta y muestra un color aleatorio
     if (message.content.toString() === "!rule")
     {
-        const colores = ["rojo", "negro"];
-        await message.reply(colores[Math.floor(Math.random() * (1 + 1))]);
+        await generarColorAleatorioRule(message)
     }
 
     if (message.content.toString().includes("!lolLastMatch"))
@@ -159,6 +160,11 @@ client.on('messageCreate', async (message) => {
 
 
 })
+
+async function generarColorAleatorioRule(message) {
+    const colores = ["Rojo", "Negro"];
+    await message.reply(colores[Math.floor(Math.random() * (1 + 1))]);
+}
 
 async function borrarMensajesCanal(message) {
     const mensajes = await message.channel.messages.fetch( );

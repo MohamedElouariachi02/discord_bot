@@ -32,6 +32,21 @@ function guardarDatos(archivo, datos)
     fs.writeFileSync(archivo, JSON.stringify(datos, null, 2));
 }
 
+function sumaMinutosUser(entrada, oldState)
+{
+    var tiempoTotal = Date.now() - entrada;
+    let baseDatos = cargarDatos(tiemposAFK);
+    if (!baseDatos[oldState.id])
+    {
+        baseDatos[oldState.id] = 0;
+    }
+    baseDatos[oldState.id] += tiempoTotal;
+
+    guardarDatos(tiemposAFK, baseDatos)
+
+    tiemposTemp.delete(oldState.id);
+}
+
 
 const client = new Client(
     { intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.DirectMessages],
@@ -58,23 +73,12 @@ client.on('voiceStateUpdate', (oldState, newState) => {
         var entrada = tiemposTemp.get(oldState.id);
         if (entrada)
         {
-            var tiempoTotal = Date.now() - entrada;
-            let baseDatos = cargarDatos(tiemposAFK);
-            if (!baseDatos[oldState.id])
-            {
-                baseDatos[oldState.id] = 0;
-            }
-            baseDatos[oldState.id] += tiempoTotal;
-
-            guardarDatos(tiemposAFK, baseDatos)
-
-            tiemposTemp.delete(oldState.id);
+            sumaMinutosUser(entrada, oldState)
         }
         return;
     }
     if (newState.channelId === CANAL_OBSERVADO) {
         tiemposTemp.set(newState.id, Date.now());
-        console.log();
     }
 })
 
@@ -114,19 +118,7 @@ client.on('messageCreate', async (message) => {
 
     if (message.content.toString().includes("!lolLastMatch"))
     {
-        const user = message.content.toString().substring("!lolLastMatch".length + 1);
-        const [username, tag] = user.split("#");
-        await message.reply("Dejame analizar... :face_with_monocle: ")
-        const vodReview = await lolUtility.todos(username, tag)
-        await message.reply(vodReview.toString().substring(0, vodReview.toString().length / 2))
-        await message.reply(vodReview.toString().substring(vodReview.toString().length / 2))
-        if (username.includes(" "))
-        {
-            const modUsername = username.replace(" ", "%20")
-            await message.reply(`Esta es mi trayectoria: https://op.gg/es/lol/summoners/euw/${modUsername}-${tag}`)
-            return
-        }
-        await message.reply(`Esta es mi trayectoria: https://op.gg/es/lol/summoners/euw/${username}-${tag}`)
+        await mostrarResumenUltimaPartidaLOL(message)
     }
 
     if (message.content.toString() === "!ruterTilt")
@@ -137,14 +129,10 @@ client.on('messageCreate', async (message) => {
 
     if (message.content.toString() === "!verRuterTilt")
     {
-        const enfados = await verRuterEnfado();
-        if (enfados === undefined)
-        {
-            await message.reply(`ByRuter lleva 0 enfados`);
-            return
-        }
-        await message.reply(`ByRuter lleva ${enfados} enfados`);
+        await mostrarEnfadosRuter();
     }
+
+
 
 
     // Comandos de administrador
@@ -159,27 +147,60 @@ client.on('messageCreate', async (message) => {
         // Borra todos sus mensajes
         if (message.content.toString() === "!limpiar")
         {
-            const mensajes = await message.channel.messages.fetch( );
-            mensajes.forEach(mensaje=> {
-                if (mensaje.author.bot)
-                {
-                    mensaje.delete();
-                }
-            })
+            await borrarMensajesBot(message)
         }
 
         //Borra todos los mensajes de un canal
         if (message.content.toString() === "!limpiarTodo")
         {
-            const mensajes = await message.channel.messages.fetch( );
-            mensajes.forEach(mensaje=> { mensaje.delete(); })
+            await borrarMensajesCanal(message)
         }
     }
 
 
 })
 
+async function borrarMensajesCanal(message) {
+    const mensajes = await message.channel.messages.fetch( );
+    mensajes.forEach(mensaje=> { mensaje.delete(); })
+}
 
+async function borrarMensajesBot(message) {
+    const mensajes = await message.channel.messages.fetch( );
+    mensajes.forEach(mensaje=> {
+        if (mensaje.author.bot)
+        {
+            mensaje.delete();
+        }
+    })
+}
+async function mostrarResumenUltimaPartidaLOL(message)
+{
+    const user = message.content.toString().substring("!lolLastMatch".length + 1);
+    const [username, tag] = user.split("#");
+    await message.reply("Dejame analizar... :face_with_monocle: ")
+    const vodReview = await lolUtility.todos(username, tag)
+    await message.reply(vodReview.toString().substring(0, vodReview.toString().length / 2))
+    await message.reply(vodReview.toString().substring(vodReview.toString().length / 2))
+    if (username.includes(" "))
+    {
+        const modUsername = username.replace(" ", "%20")
+        await message.reply(`Esta es mi trayectoria: https://op.gg/es/lol/summoners/euw/${modUsername}-${tag}`)
+        return
+    }
+    await message.reply(`Esta es mi trayectoria: https://op.gg/es/lol/summoners/euw/${username}-${tag}`)
+}
+
+async function mostrarEnfadosRuter()
+{
+    const enfados = await verRuterEnfado();
+    if (enfados === undefined)
+    {
+        await message.reply(`ByRuter lleva 0 enfados`);
+        return
+    }
+    await message.reply(`ByRuter lleva ${enfados} enfados`);
+}
 
 async function verListaAFK(message)
 {

@@ -13,7 +13,8 @@ const comandosInfo = {"!listaAFK": "Te enseño toda la lista de los miembros que
 "!rule": "Te doy un color aleatorio",
 "!lolLastMatch username#tag": "El bot te hace un resumen de tu ultima partida y te da consejos para mejorar",
 "!ruterTilt": "Suma 1 enfado a la lista de enfados de ByRuter",
-"!verRuterTilt" : "Muestra cuantos tilts lleva nuestro amigo ByRuter"}
+"!verRuterTilt" : "Muestra cuantos tilts lleva nuestro amigo ByRuter"
+}
 
 function cargarDatos(archivo)
 {
